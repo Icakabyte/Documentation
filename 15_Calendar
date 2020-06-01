@@ -1,0 +1,133 @@
+Проект №15– Календар
+
+Връзка към хранилище в GitHub: https://github.com/Icakabyte/Calendar?fbclid=IwAR2rX8buS9L7aSZ-PCpJPuMMmGCgM_3eeg2-RJ6Ix9v7JG_A9u3ocJYWRs4
+Изготвил: Христо Костов Христов, ФН: 82013, група 1
+Глава 1: Увод
+1.1	Описание и идея на проекта:
+Основната идея на проекта е реализиране на информационна система, която поддържа личен календар. Като всеки календар програмата притежава възможност за добавяне, промяна или отмяна на среща, както и извеждането на справки с различна полезна за потребителя информация.
+1.2	Цел и задачи на разработката:
+
+Целта на приложението е да обслужва конкретен потребител като представлява неговият личен календар. Основните задачи, които се появиха по време на разработката се отнасяха към неговата реализация:  избор на подходящо съхраниние на датите и срещите, тяхната обработка и записване във файл, което е изключително важно за един календар. 
+
+1.3	Структура на документацията
+В глава 2 ще разгледам проектирането на проекта ми, като ще покажа неговата обща ООП архитектура и дизайн. В трета глава ще покажа реализацията на тази архитектура, основните и най-важни моменти от работата н програмата, а в края й ще посоча конкретни примери от нейната работа. В последната глава 4 ще направя кратко обобщение на работата ми по проекта и ще предложа няколко идеи за бъдещи подобрения на това приложение.
+Глава 2: Проектиране
+2.1 Обща архитектура – ООП дизайн
+Приложението съдържа един основен клас: клас Meet, който реализира срещите, въведени от потребителя. Всяка среща е представена от име на срещата,  дата, на ко	ято ще се състои (символен низ), начален и краен час (символни низове),  коментар, който представлява свободен въведен от потребителя текст. Относно методи класът има селектори за необходимите данни, както и функции, които да реализират промени от типа на добяване на нова среща, отмяна, търсене на среща по даден символен низ и други.
+Глава 3: Реализация и тестване
+3.1 Реализация на класа:
+Член-данни на клас Meet:
+    std::string datemeet;  -> Дата на срещата
+    std::string startmeet,endmeet; -> Начален и краен час
+    int year,mon,day;
+    std::string namemeet;          -> Име
+    std::string notemeet;          -> Бележка към срещата
+
+Основни моменти в реализацията на класа:
+void Meet::book(std::string& str) //default
+{
+    // Добавя нова среща
+
+    size_t searchpos;
+    year=mon=day=0;
+
+    //get meet DATA
+    searchpos = str.find(" ");
+    datemeet = str.substr(0,searchpos);
+    str.erase (0,searchpos+1);
+    this->updateYMD();
+
+    
+    //get meet START
+    searchpos = str.find(" ");
+    startmeet = str.substr(0,searchpos);
+    str.erase (0,searchpos+1);
+
+    //get meet END
+    searchpos = str.find(" ");
+    endmeet = str.substr(0,searchpos);
+    str.erase (0,searchpos+1);
+    
+
+    //get meet NAME    
+    searchpos = str.find(" ");
+    namemeet = str.substr(0,searchpos);
+    str.erase (0,searchpos+1);
+
+    //get meet NOTE
+    notemeet = str.substr(0,str.size());
+    str.erase (0,str.size());
+
+    return;
+}
+
+void Meet::unbook(std::string& str)
+{   
+    // отменя среща по дадена информация за нея 
+    // ако такава не съществува, извежда подходящо съобщение
+    size_t searchpos;
+
+    //get meet DATA
+    searchpos = str.find(" ");
+    datemeet = str.substr(0,searchpos);
+    str.erase (0,searchpos+1);
+
+    
+    //get meet START
+    searchpos = str.find(" ");
+    startmeet = str.substr(0,searchpos);
+    str.erase (0,searchpos+1);
+
+    //get meet END
+    endmeet = str.substr(0,str.size());
+    str.erase (0,str.size());
+
+    return;
+}
+
+3.2 Тестови сценарии
+	3.2.1 Сценарий 1:
+
+>_ open file.txt
+Successfully opened file.txt
+>_ book 2020.05.31 13:15 15:00 Apprilski_neshta triest i purva aprilska shega!
+Meet addes successful!
+>_ book 2020.06.02 14:00 15:17 Apprilski_neshta triest i purva aprilska shega!
+Meet addes successful!
+>_ book 2020.06.01 09:30 12:00 MAyyyyy Prez mai mesec ima 31 dni
+Meet addes successful!
+>_ book 2020.05.28 08:00 08:30 April_mesec Plashtane na zaplati. Sreshta s borda.
+Meet addes successful!
+>_ book 2020.05.29 08:20 10:30 April_29_mesec Pbelejka!
+Meet addes successful!
+>_ book 2020.06.02 12:30 13:15 maiski_mesec nqmam si i na ideq kakvo da napisha!
+Meet addes successful!
+>_ book 2020.05.31 10:05 10:30 April_31_mesec Note for meet.
+Meet addes successful!
+>_ busydays 2020.05.25 2020.06.03
+2020.05.28 0 hours 30 min
+2020.06.02 2 hours 2 min
+2020.05.29 2 hours 10 min
+2020.05.31 2 hours 10 min
+2020.06.01 2 hours 30 min
+
+>_ book 2020.05.31 10:29 10:55 Aprilski_neshta Note for this meet!
+You can't add this meeting!
+>_ save
+Successfully saved file.txt
+>_ saveas FILE_as.txt
+Successfully saved another FILE_as.txt!
+>_ close
+Successfully closed file.txt
+>_ exit
+Exiting the program...
+Глава 4: Заключение
+4.1 Обобщение на изпълнението на поставените задачи:
+	Считам, че съм изпълнил поставените задачи, като съм се съобразил с изискванията на добрите ООП практики, преподавани през семестъра. 
+4.2 Идеи за бъдещи подобрения:
+	4.2.1 Подобряване на интерфейса на приложението. Така то ще бъде по-достъпно и удобно за работа;
+	4.2.2 Оптимизиране на алгоритмите с цел програмата да работи по-бързо и ефективно.
+
+Използвана литература:
+1.	“ISO 8601”, Wikipedia, https://bg.wikipedia.org/wiki/ISO_8601
+
