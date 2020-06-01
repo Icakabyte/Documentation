@@ -1,0 +1,261 @@
+Проект №14 – Билети
+
+Връзка към хранилище в GitHub: https://github.com/Icakabyte/Tickets?fbclid=IwAR1pOMsdw6oIWmjXBaLpCz9tY1IJTKKU7R0kY3Yd9l_bgYKb02hnnPgR6HU
+Изготвил: Христо Костов Христов, ФН: 82013, група 1
+Глава 1: Увод
+1.1	Описание и идея на проекта:
+Основната идея на проекта е реализиране на информационна база, която обслужва  билетна каса на дадено кино/театър. Представленията се играят в няколко предварително зададени зали с конкретен капацитет. Приложението трябва да може да запазва и закупува билети, да добавя представления, да валидира билети, както и да извежда справки.
+1.2	Цел и задачи на разработката:
+
+Целта на приложението е да обслужва дадена билетна каса, което има своите практически специфики. Основните задачи бяха: първо отделяне на обектите по подходящ начин, второ свърването им по подходящ начин за оптимална работа на приложението и трето финализиране на проекта с удобен за потребителя интерфейс. За да създам правилните класове ми бе необходимо вникване в условието. Тази първа задача, макар и не обвързана с реално програмиране, ми бе нужна, за да изградя правилната структура в приложението си. След като реализирах тази структура ми остана само да финализирам самото приложението като добавя съобщения на подходящи места, които да дават информация на потребителя за направените промени. Това му придаде завършен вид и улесни работата с него неколкократно.
+
+1.3	Структура на документацията
+В глава 2 ще разгледам проектирането на проекта ми, като ще покажа неговата обща ООП архитектура и дизайн. Глава 3 ще се фокусира върху реализирането на описаните във втора глава класове, както и върху определени важни сегменти от кода, които съм сметнал за основни. В края на трета глава ще илюстритам работата на програмата ми с примери от нейния вход и изход. В последната глава 4 ще направя кратко обобщение на работата ми по проекта и ще предложа няколко идеи за бъдещи подобрения на това приложение.
+Глава 2: Проектиране
+2.1 Обща архитектура – ООП дизайн
+Приложението притежава 3 основни класа: клас Event, клас Hall и клас Ticket, както и 1 клас с помощни функции: клас Function. Спрял съм се на тези три основни класа, тъй като смятам, че илюстрират действителността най-точно. Клас Event съдържа оосновната информация за събитието – неговото име, зала, в която ще се състои, датата, за която е насрочено и списък от билети за него. Класът притежава нужните селектори, някои мутатори, както и помощни функци за осъществяване на промени по събитието. През него програмата осъществява създаването и поддърржането на различни събития. Клас Hall представя залите, с които разполага приложението. В него се съхранява номера на залата, както и нейният капацитет – редове и колони. Той също има необходимите му селектори, както и функция за добавяне на нова зала. Клас Tickets съхранява информация за билетите – място (ред и колона), булеви променливи за това дали е резервиран или закупен, уникален сериен номер на билета, както и бележка – свободен текст, който се добавя само при резервиране на билет. Освен селектори и  мутатори, класът има и някои методи – за създаване на уникалния сериоен номер и за принтиране на билета. Клас Function съдържа само статични методи – помощни функции на програмата, която тя извиква на различни етапи от действието си. В него са реализирани някои от основните функционалности на програмата като закупуване на билет, добавяне на събитие, отмяна на резервация и други.
+Глава 3: Реализация и тестване
+3.1 Реализация на класовете:
+Основните моменти от реализацията на клас Event са:
+    std::string dataEvent; -> Дата на събитието
+    std::string hallEvent; -> Зала в която ще се проведе
+    std::string nameEvent; -> Неговото име
+
+    std::vector<Tickets> ticketsforevent; -> Вектор от закупени/ резервирани билети
+
+Следната фунция реализира проверката за коректност на даден билет:
+bool Event::checkcode(std::string _code)
+{
+    for(int i=0;i<ticketsforevent.size();i++)
+    {
+        if(_code==ticketsforevent[i].getCode())
+        {
+            std::cout<<"\nEvent: "<<nameEvent<<"   Data: "<<dataEvent<<"   							ZALA: "<<hallEvent<<"\n";
+            ticketsforevent[i].p();
+            return true;
+            break;
+        }
+    }
+    return false;
+}
+
+Член-данните на клас Hall са:
+int name;		      -> Номер на залата
+int n,m; //rows columns   -> Капацитет на залта: редове и колони
+
+Основните моменти от реализацията на клас Tickets са:
+       int row,seat;         -> Ред и място
+    bool bought,booked;   -> Закупен / Резервиран ли е билетът
+    std::string noteTic;  -> Бележка за резервираните билети
+    std::string code;     -> Уникален идентификационен номер на билет
+Следния метод от клас Tickets създава горепосочения Уникален идентификационен номер на билет. 
+
+void Tickets::createcode(std::string hall,std::string data,std::string name)
+{
+    code+="R";
+    int row2=0;
+
+    for(int r=row;r;r/=10)
+    row2=row2*10+r%10;
+
+    for(;row2;row2/=10)
+        code+=char(row2%10+'0');
+
+    code+="_S";
+    int seat2=0;
+    for(int s=seat;s;s/=10)
+    seat2=seat2*10+s%10;
+
+    for(;seat2;seat2/=10)
+        code+=char(seat2%10+'0');
+    
+    std::string znak="#$^|/~()";
+    code+=znak[(row+seat)%8];
+    std::string abc16="AaBbCcDdEeFfGgHhIiJjKkLlMmNnOoPpQqRrSsTtUuVvWwXxYyZz",s=name+data;
+    int num=0;
+    for(int i=0;i<s.size();i++)
+    {
+        num+=s[i];
+    }
+    for(;num;num/=8)
+        code+=abc16[num%52];
+    
+    code+=znak[(row+seat)%8];
+    code+=hall;
+    //std::cout<<code<<"\n";
+}
+
+	Генерирането на серийния номер на билета по този начин предпазва от фалшифицирането на билет.
+
+Една от основните функции в клас Function е:
+void Function::freeseats(std::vector<Event>&events,std::vector<Hall>&hall,std::string&str)
+{        
+//Принтира цялата зала като отбелязва свободните места със знак ‘О‘
+    std::string _data,_name;
+    int pos = str.find(" ");
+    _data=str.substr(0,pos);
+    str.erase(0,pos+1);
+    _name=str;
+
+    for(int i=0;i<events.size();i++)
+    {
+        if(events[i].getData()==_data && events[i].getName()==_name)
+        {
+            int n;
+            int m,_hall=0;
+            std::string namehall=events[i].getHall();
+            for(int convert=0;convert<namehall.size();convert++)
+            {
+                _hall = _hall*10 + (int(namehall[convert])-'0');
+            }
+            for(int h=0;h<hall.size();h++)
+            {
+                if(hall[h].getName()  == _hall)
+                {
+                    n=hall[h].getN();
+                    m=hall[h].getM();
+                    break;
+                }
+            }
+            std::cout<<"\n\n";
+            std::vector<Tickets> tic=events[i].getTic();
+            for(int r=0;r<n;r++)
+            {
+                std::cout<<"    ";
+                for(int s=0;s<m;s++)
+                {
+                    bool free=true;
+                    for(int t=0;t<tic.size();t++)
+                    {
+                        if(tic[t].getRow()==r+1 && tic[t].getSeat()==s+1)
+                        {
+                            free=false;
+                            break;
+                        }
+                    }
+                    if(free)
+                    std::cout<<"O ";
+                    else
+                    std::cout<<"  ";
+                }
+                std::cout<<"\n";
+            }
+            std::cout<<"\nReserved or sold:\n";
+            for(int t=0;t<tic.size();t++)
+                tic[t].p();
+            std::cout<<"\n";
+            break;
+        }
+    }
+}
+
+3.2 Тестови сценарии
+	3.2.1 Сценарий 1:
+Open hall's file!
+>_ open hall_file.txt
+Do you want to add some hall?
+>_ no
+Now open Event&Tickets's file!
+>_ open Eve_Tic.txt 
+
+Successfully opened Eve_Tic.txt
+>_ book 3 4 2020.12.22 Izpisvane Rezerviram  bilet!   
+>_ book 3 4 2020.12.22 Izpisvane Rezerviram  bilet!
+This seat is occupied! You can't book it!
+>_ unbook 3 4 2020.12.22 Izpisvane                   
+>_ book 3 4 2020.12.22 Izpisvane Rezerviram  bilet!   
+>_ book 4 4 2020.12.22 Izpisvane Rezerviram  bilet! 
+>_ book 4 7 2020.12.22 Izpisvane Rezerviram  bilet! 
+>_ buy 5 6 2020.12.22 Izpisvane
+>_ freeseats 2020.12.22 Izpisvane
+
+        O O O O O O	
+    O O O O O O O 
+    O O O     O O O
+    O O O     O O
+    O O O O O     O
+    O O O O O O O 
+    O O O O O O O
+
+Reserved or sold:
+    -> Row: 1 Seat: 1 / Bought
+    -> Row: 3 Seat: 4 / Booked
+    -> Row: 4 Seat: 4 / Booked
+    -> Row: 4 Seat: 7 / Booked
+    -> Row: 5 Seat: 6 / Bought
+
+>_ bookings 2020.12.22 Izpisvane 
+
+Event: Izpisvane   Data: 2020.12.22   ZALA: 101
+    -> Row: 3 Seat: 4 Booked
+    -> Row: 4 Seat: 4 Booked
+    -> Row: 4 Seat: 7 Booked
+>_ bookings Izpisvane            
+
+Event: Izpisvane   Data: 2020.12.22   ZALA: 101
+    -> Row: 3 Seat: 4 Booked
+    -> Row: 4 Seat: 4 Booked
+    -> Row: 4 Seat: 7 Booked
+>_ report 2000.01.01 2222.11.11
+
+Name: Rajdaneto_na_bai_Ganio Data:2020.01.01
+Reserved or sold:
+  Sold: 1 tickets
+  Reserved: 0 tickets
+
+
+Name: Pisha Data:2020.05.20
+Reserved or sold:
+  Sold: 0 tickets
+  Reserved: 0 tickets
+
+
+Name: Vlubeniq_Shekspir Data:2020.05.28
+Reserved or sold:
+  Sold: 2 tickets
+  Reserved: 0 tickets
+
+
+Name: Teatur! Data:2020.05.29
+Reserved or sold:
+  Sold: 4 tickets
+  Reserved: 0 tickets
+
+
+Name: qnko Data:2020.05.29
+Reserved or sold:
+  Sold: 3 tickets
+  Reserved: 0 tickets
+
+
+Name: Rajdane Data:2020.12.22
+Reserved or sold:
+  Sold: 1 tickets
+  Reserved: 0 tickets
+
+
+Name: Izpisvane Data:2020.12.22
+Reserved or sold:
+  Sold: 2 tickets
+  Reserved: 3 tickets
+
+>_ save
+>_ saveas New_file.txt
+Successfully saved another New_file.txt!
+>_ cloase
+Command not found!
+>_ close
+Successfully closed Eve_Tic.txt
+>_ exit
+------------------------
+
+Глава 4: Заключение
+4.1 Обобщение на изпълнението на поставените задачи:
+	Считам, че съм изпълнил поставените задачи, като съм се съобразил с изискванията на добрите ООП практики, преподавани през семестъра. 
+4.2 Идеи за бъдещи подобрения:
+	4.2.1 Подобряване на интерфейса на приложението. Така то ще бъде по-достъпно и удобно за работа;
+	4.2.2 Оптимизиране на алгоритмите с цел програмата да работи по-бързо и ефективно.
+
+Използвана литература:
+1.	“ISO 8601”, Wikipedia, https://bg.wikipedia.org/wiki/ISO_8601
+
